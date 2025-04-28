@@ -7,7 +7,7 @@
 <img src="images/image1.png" alt="CareFox Logo" width="140">
 </td>
 <td>
-Project for the Spring 2025 course DSCI-D532 – Applied Database Technologies at Indiana University, Bloomington. <br>
+Project for the Spring 2025 course <b>DSCI-D532 – Applied Database Technologies</b> at Indiana University, Bloomington. <br>
 Developer: <a href="https://github.com/nashjafri" target="_blank">Nasheed Jafri</a>
 </td>
 </tr>
