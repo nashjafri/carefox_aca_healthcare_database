@@ -2,6 +2,7 @@
 *ACA-Compliant (Individual) Healthcare Plan Comparison & Analytics Platform*  
 
 **Project for:** SP25-BL-DSCI-D532 – Applied Database Technologies (Indiana University, Bloomington)
+
 **Developer:** [Nasheed Jafri](https://github.com/nashjafri)  
 
 ---
