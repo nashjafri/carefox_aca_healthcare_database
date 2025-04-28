@@ -8,7 +8,7 @@
 </td>
 <td>
 <b>Project for:</b> SSP25-BL-DSCI-D532 – Applied Database Technologies (Indiana University, Bloomington)<br>
-<b>Developer:</b> [Nasheed Jafri](https://github.com/nashjafri)
+<b>Developer:</b> <a href="https://github.com/nashjafri" target="_blank">Nasheed Jafri</a>
 </td>
 </tr>
 </table>
