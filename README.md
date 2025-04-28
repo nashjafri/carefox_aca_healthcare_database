@@ -1,16 +1,17 @@
 # CareFox  
 *ACA-Compliant (Individual) Healthcare Plan Comparison & Analytics Platform*  
 
-<p align="center">
-  <img src="images/image1.png" alt="CareFox Logo" width="300">
-</p>
-
-
-**Project for:** SP25-BL-DSCI-D532 – Applied Database Technologies (Indiana University, Bloomington)
-
-**Developer:** [Nasheed Jafri](https://github.com/nashjafri)  
-
----
+<table>
+<tr>
+<td width="150">
+<img src="images/image1.png" alt="CareFox Logo" width="140">
+</td>
+<td>
+<b>Project for:</b> SSP25-BL-DSCI-D532 – Applied Database Technologies (Indiana University, Bloomington)<br>
+<b>Developer:</b> [Nasheed Jafri](https://github.com/nashjafri)
+</td>
+</tr>
+</table>
 
 ## Overview
 
