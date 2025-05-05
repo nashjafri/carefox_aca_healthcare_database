@@ -1,64 +1,156 @@
-# CareFox  
-*ACA-Compliant (Individual) Healthcare Plan Comparison & Analytics Platform*  
+<p align="center">
+  <img src="image1.png" alt="App Screenshot" width="700">
+</p>
 
-<table>
-<tr>
-<td width="150">
-<img src="images/image1.png" alt="CareFox Logo" width="140">
-</td>
-<td>
-Project for the Spring 2025 course <b>DSCI-D532 – Applied Database Technologies</b> at Indiana University, Bloomington. <br>
-Developer: <a href="https://github.com/nashjafri" target="_blank">Nasheed Jafri</a>
-</td>
-</tr>
-</table>
+SP25-BL-DSCI-D532  
+**Applied Database Technologies**  
+**Final Project**
 
-## Overview
+# CareFox: ACA Plan Comparison App
 
-Choosing the right healthcare plan can be overwhelming due to the vast number of options, varying benefit coverages, network limitations, and cost structures. **CareFox** is a web-based platform designed to help users easily **compare ACA-compliant individual health insurance plans in the US market** based on key factors like coverage, cost, provider networks, and location accessibility.  
+**GitHub Repositories:**
+- **Data Normalization and Cleaning:** [https://github.com/nashjafri/carefox_aca_healthcare_database](https://github.com/nashjafri/carefox_aca_healthcare_database)  
+- **App Development using Flask:** [https://github.com/CareFox-ACA/carefox_app](https://github.com/CareFox-ACA/carefox_app)
 
 ---
 
-## Data Sources
+## Purpose and Audience
 
-- **Primary:** [HIX Compare Dataset](https://hix-compare.org) — plan-level information for nearly all ACA-compliant individual and small group health insurance markets.
-- **Additional/External Sources:**  
-  - [Medicare Inpatient Hospitals Data (CMS)](https://data.cms.gov/provider-summary-by-type-of-service/medicare-inpatient-hospitals)  
-  - [Healthcare.gov Plan Information](https://www.healthcare.gov/health-plan-information/)  
-  - [CMS Provider Data](https://data.cms.gov/provider-data/)  
-  - [AHD.com Hospital Data](https://www.ahd.com/data_services.html) *(data requested)*  
+The purpose of CareFox is to simplify the process of discovering, comparing, and estimating costs for Affordable Care Act (ACA) health insurance plans. Although the ACA was a major policy success in terms of expanding coverage, it has long suffered from limited transparency, narrow provider networks, and regionally fragmented access to plan details. Many users, especially those in rural or underserved areas, struggle to find plans that meet their needs due to limited network sizes and lack of centralized, user-friendly interfaces. This app is designed for individuals and families navigating the ACA marketplace who want a streamlined way to explore and compare health plans available in their region.
 
 ---
 
-## Technology Stack
+## App Functionalities
 
-- **Database:** SQL (relational queries), MongoDB (if needed)
-- **Backend:** Python (Flask or Django)
-- **Frontend:** React.js or basic HTML/CSS/JavaScript
-- **Data Processing:** Pandas, NumPy, SQL
-- **Visualization:** Plotly, Leaflet.js (interactive maps), Matplotlib
-- **Hosting:** GitHub Pages (for static) or Cloud services like Heroku, AWS, or Firebase (for dynamic backend)
+- **Homepage:**  
+  Offers background on ACA, definitions of key insurance terms, Medicaid expansion info, and navigation to:
+  - Explore plans
+  - Estimate premiums
+  - Compare selected plans
+
+- **Find Plans by ZIP or County:**  
+  - Users can enter a ZIP or select a State + County combination  
+  - County dropdown is dynamically filtered by selected state  
+  - User selects household type (Individual or Family) to personalize deductible/MOOP info
+
+- **ZIP Results Page:**  
+  - Displays all ACA plans for the region, grouped by **carrier**  
+  - Sidebar filters:
+    - Max deductible
+    - Max out-of-pocket (MOOP)
+    - Max copay and coinsurance
+    - Desired benefits  
+  - Each plan offers:
+    - View details
+    - Estimate monthly premium
+    - Add to comparison cart
+
+- **Plan Details Page:**
+  - Shows:
+    - Plan metadata (metal level, plan type, etc.)
+    - Household-specific deductible & MOOP
+    - Benefit-level cost-sharing:
+      - In-network copay
+      - In-network coinsurance
+      - Out-of-network copay
+      - Out-of-network coinsurance  
+  - Smart filtering: Only displays relevant benefits based on user filters
+
+- **Premium Estimator:**
+  - User inputs: ZIP, state, age, carrier (optional: plan type, metal)
+  - Calculates premium:  
+    `Estimated Premium = Base Premium (age 21) × State Age Multiplier`  
+  - Results:
+    - Carrier, Metal Level, Age, Base Premium
+    - Multiplier, Estimated Premium
+    - Family premium examples
+  - Options: Add to Cart, Try Another Estimate
+
+- **Comparison Cart:**
+  - Scrollable side-by-side plan comparison
+  - Attributes displayed:
+    - MOOP & Deductibles (in/out)
+    - Base and Family Premiums
+    - Copay & Coinsurance for up to 30 benefits
+  - Delete individual plans or clear all
 
 ---
 
-## Key Features
+## Link/Hosting Status
 
-- **Plan Comparison Tool**
-  - Compare plans based on premiums, deductibles, benefit coverage, and more.
-  - Filter by budget, location (ZIP code), and preferences.
+The app currently runs **locally**.
 
-- **Geospatial Insights**
-  - Interactive maps showing in-network hospitals and doctors nearby.
-  - Visualize provider coverage areas.
+-Attempts to host (e.g., on Render) failed due to PostgreSQL connection timeouts.  
+-Free platforms were inadequate due to dataset size (~300MB+).  
 
-- **Predictive Analytics**
-  - Estimate procedure costs based on historical plan data.
-  - Suggest best-fit plans based on user preferences and basic health history.
+Hosting will be reconsidered after optimizing data size and DB connections.
 
-- **User Interaction**
-  - Search, filter, and save preferred plans.
-  - Manage provider preferences.
+---
 
-- **Data Visualization**
-  - Cost trends, premium changes, and plan popularity graphs.
-  - Regional comparisons of coverage and healthcare access.
+## Technical Development & Contributions
+
+I was the **sole developer** on this project. My responsibilities included:
+
+- Designing full relational schema (8 tables + 4 views)
+- Cleaning & normalizing ACA plan data (723 → 192 columns)
+- Creating dynamic filtering and performance-optimized views
+- Implementing Flask routes and Jinja templates
+- Writing backend logic for:
+  - Premium estimation
+  - Copay/coinsurance filtering
+  - Comparison cart
+- Frontend styling: HTML, CSS, FontAwesome
+- Independent debugging, integration, and optimizations
+
+---
+
+## References
+
+- [HIX Compare Dataset](https://www.hix-compare.org)  
+- [CMS Age Curve Multipliers (State-wise)](https://www.cms.gov/CCIIO/Programs-and-Initiatives/Health-Insurance-Market-Reforms/Downloads/StateSpecAgeCrv053117.pdf)  
+- [Kaggle ZIP-FIPS Crosswalk Dataset](https://www.kaggle.com/datasets/danofer/zipcodes-county-fips-crosswalk)  
+- [Kaiser Family Foundation (KFF)](https://www.kff.org/status-of-state-medicaid-expansion-decisions/)  
+- [Robert Wood Johnson Foundation (RWJF)](https://www.rwjf.org)  
+- **IDEON** – Email consultation for field clarifications  
+- **ChatGPT** – Helped debug:
+  - Dynamic Jinja rendering
+  - CSS button/table styling  
+  _Note: All code/query logic was my own._
+
+---
+
+## Reflections & Learning
+
+This project helped me grow in:
+
+- Understanding U.S. healthcare policy and ACA plan structures
+- Handling real-world data (723 cols × 85,000 rows)
+- Schema normalization with composite keys (no unique ones!)
+- Writing multi-table joins for ZIP-FIPS-County-State linkage
+- End-to-end full stack web app development
+
+**Challenges:**
+- No simplification of messy data
+- Lack of unique keys
+- Legal limits on provider network integration
+- Complex SQL without bloating schema
+- First-ever solo full-stack app
+
+---
+
+## Future Improvements
+
+- Add **exclusions/limitations** per benefit and visualize clearly
+- Simplify views and route logic
+- Integrate **provider-network** data when permitted
+- Add sorting to comparison (e.g., by premium)
+- User login/account features (though I liked hassle-free no-login)
+- Deploy online after DB optimization
+- Add interactive visuals (e.g., heatmaps, ratings)
+- Include **small group marketplace** data (currently using individual market only)
+
+---
+
+## Developer
+
+Nasheed Jafri
