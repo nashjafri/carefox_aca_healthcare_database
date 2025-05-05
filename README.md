@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="image1.png" alt="App Screenshot" width="700">
+  <img src="images/image1.png" alt="CareFox Logo" width="700">
 </p>
 
 SP25-BL-DSCI-D532  
