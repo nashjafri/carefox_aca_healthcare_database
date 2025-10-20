@@ -1,0 +1,374 @@
+{% if grouped_plans %}
+
+{% extends 'base.html' %}
+{% block title %}Plan Results - CareFox{% endblock %}
+
+{% block content %}
+
+<!-- Styling for modern collapsible layout -->
+<style>
+    
+     h2{
+        text-align: center;
+        font-size: 2.3rem;
+    }  
+
+  .carrier-section {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  .carrier-header {
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    color: #2c3e50;
+    transition: color 0.3s ease;
+  }
+
+  .carrier-header:hover {
+    color: #005fa3;
+  }
+
+  .carrier-body {
+    display: none;
+    padding-left: 1rem;
+    padding-top: 0.5rem;
+  }
+
+  .carrier-section.open .carrier-body {
+    display: block;
+  }
+
+  .carrier-section.open .chevron {
+    transform: rotate(90deg);
+  }
+
+  .chevron {
+      font-size: 2rem;
+      padding: 0.2rem 0.6rem;
+      transition: transform 0.3s ease;
+      color: #777;
+    cursor: pointer;
+    }  
+
+  .plan-list {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .plan-name {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+
+  .plan-actions {
+    margin-bottom: 1rem;
+  }
+
+  .plan-link {
+    font-size: 0.9rem;
+    margin-right: 1rem;
+    text-decoration: none;
+    color: #0077cc;
+    font-weight: 500;
+  }
+
+  .plan-link:hover {
+    text-decoration: underline;
+    }
+      
+      
+    .circle-button {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: 10px;
+      height: 10px;
+      margin-right: 4px;
+      border-radius: 50%;
+      background-color: #005fa3;
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+      line-height: 1;
+    }   
+
+      
+</style>
+
+<!-- JS for toggle behavior -->
+<script>
+  function togglePlans(header) {
+    const section = header.parentElement;
+    section.classList.toggle('open');
+  }
+</script>
+
+<div style="display: flex; gap: 2rem; align-items: flex-start;">
+
+  <!-- Sidebar Filters -->
+    
+    
+<style>
+  aside {
+    font-size: 0.85rem;
+    color: #333;
+  }
+
+  aside h3 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+  }
+
+  aside label {
+    font-weight: normal;
+    font-size: 0.85rem;
+    color: #444;
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+
+  aside input[type="number"] {
+  font-size: 0.75rem;
+  padding: 0.1rem 0.3rem;
+  height: 1.6rem;
+  width: 65px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  line-height: 1;
+  box-sizing: border-box;
+  }
+
+  aside input[type="range"] {
+    flex: 1;
+  }
+    
+    
+    aside input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      background: #ccc;
+      border-radius: 2px;
+      outline: none;
+      transition: background 0.3s ease;
+    }
+
+    aside input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 16px;
+      width: 16px;
+      background: midnightblue;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 2px rgba(0,0,0,0.3);
+    }
+
+    aside input[type="range"]::-moz-range-thumb {
+      height: 16px;
+      width: 16px;
+      background: midnightblue;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+
+  aside input[type="checkbox"] {
+    margin-right: 0.4rem;
+    transform: scale(0.85);
+  }
+
+  aside .benefits-scrollbox {
+    font-size: 0.83rem;
+    line-height: 1.4;
+  }
+
+  aside button {
+    font-size: 0.85rem;
+    padding: 0.6rem;
+    margin-top: 1rem;
+  }
+        
+ .filter-box-link {
+      display: inline-block;
+      padding: 1rem 1.5rem;
+      background-color: midnightblue;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 10px;
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: background 0.3s ease;
+      border: none; /* Important for buttons */
+      cursor: pointer;
+    }
+
+    .filter-box-link:hover {
+      background-color: skyblue;
+    }   
+        
+</style>
+
+
+    
+    
+    
+  <aside style="flex: 1; background: #fff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+    <form method="GET" action="/zip-results">
+      <input type="hidden" name="zip" value="{{ request.args.get('zip', '') }}">
+      <input type="hidden" name="state" value="{{ request.args.get('state', '') }}">
+      <input type="hidden" name="county" value="{{ request.args.get('county', '') }}">
+      <input type="hidden" name="household" value="{{ household_type }}">
+
+      <h3><b>Filters</b></h3>
+
+
+      <!-- Premium Filter -->
+      <label for="max_premium">Max Base Premium (Age 21)</label>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <input type="range" id="premiumSlider" min="0" max="3000" step="50"
+               value="{{ request.args.get('max_premium', 3000) }}"
+               oninput="document.getElementById('premiumInput').value = this.value">
+        <input type="number" name="max_premium" id="premiumInput" min="0" max="3000" step="50"
+               value="{{ request.args.get('max_premium', 3000) }}"
+               oninput="document.getElementById('premiumSlider').value = this.value"
+               style="width: 90px; padding: 0.4rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 8px; color: #000;">
+      </div>
+
+      <!-- MOOP Filter -->
+      <label for="max_moop">Max Out of Pocket</label>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <input type="range" id="moopSlider" min="0" max="10000" step="500"
+               value="{{ request.args.get('max_moop', 10000) }}"
+               oninput="document.getElementById('moopInput').value = this.value">
+        <input type="number" name="max_moop" id="moopInput" min="0" max="10000" step="500"
+               value="{{ request.args.get('max_moop', 10000) }}"
+               oninput="document.getElementById('moopSlider').value = this.value"
+               style="width: 90px; padding: 0.4rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 8px; color: #000;">
+      </div>
+
+      <!-- Deductible Filter -->
+      <label for="max_deductible">Max Deductible</label>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <input type="range" id="dedSlider" min="0" max="10000" step="500"
+               value="{{ request.args.get('max_deductible', 10000) }}"
+               oninput="document.getElementById('dedInput').value = this.value">
+        <input type="number" name="max_deductible" id="dedInput" min="0" max="10000" step="500"
+               value="{{ request.args.get('max_deductible', 10000) }}"
+               oninput="document.getElementById('dedSlider').value = this.value"
+               style="width: 90px; padding: 0.4rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 8px; color: #000;">
+      </div>
+
+      <!-- Copay Filter -->
+      <label for="max_copay">Max In-Network Copay (Tier 1)</label>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <input type="range" id="copaySlider" min="0" max="1000" step="10"
+               value="{{ request.args.get('max_copay', 1000) }}"
+               oninput="document.getElementById('copayInput').value = this.value">
+        <input type="number" name="max_copay" id="copayInput" min="0" max="1000" step="10"
+               value="{{ request.args.get('max_copay', 1000) }}"
+               oninput="document.getElementById('copaySlider').value = this.value"
+               style="width: 90px; padding: 0.4rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 8px; color: #000;">
+      </div>
+
+      <!-- Coinsurance Filter -->
+      <label for="max_coinsurance">Max In-Network Coinsurance (%)</label>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <input type="range" id="coinsSlider" min="0" max="100" step="5"
+               value="{{ request.args.get('max_coinsurance', 100) }}"
+               oninput="document.getElementById('coinsInput').value = this.value">
+        <input type="number" name="max_coinsurance" id="coinsInput" min="0" max="100" step="5"
+               value="{{ request.args.get('max_coinsurance', 100) }}"
+               oninput="document.getElementById('coinsSlider').value = this.value"
+               style="width: 90px; padding: 0.4rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 8px; color: #000;">
+      </div>
+
+      <!-- Benefits Filter -->
+      <label>Include Benefits:</label>
+      <div style="margin-bottom: 1rem; max-height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 0.5rem; border-radius: 8px;">
+        {% for code, name in [
+          ('AB', 'Ambulance'), ('EY', 'Child Eye Exam'), ('EW', 'Child Eyewear'), ('DT', 'Diagnostic Test'),
+          ('DM', 'Durable Medical Equipment'), ('ER', 'Emergency Room'), ('GD', 'Generic Drugs'),
+          ('HA', 'Habilitation Services'), ('HH', 'Home Health Care'), ('HS', 'Hospice Service'),
+          ('IM', 'Imaging'), ('IB', 'Inpatient Birth'), ('IP', 'Inpatient Facility'), ('IN', 'Inpatient Mental Health'),
+          ('IH', 'Inpatient Physician'), ('IS', 'Inpatient Substance Use Disorder'), ('ND', 'Non-Preferred Brand Drugs'),
+          ('OP', 'Outpatient Facility'), ('OM', 'Outpatient Mental Health'), ('OH', 'Outpatient Physician'),
+          ('OS', 'Outpatient Substance Use Disorder'), ('PD', 'Preferred Brand Drugs'), ('PN', 'Prenatal/Postnatal Care'),
+          ('PV', 'Preventative Care'), ('PC', 'Primary Care Physician'), ('RH', 'Rehabilitation Services'),
+          ('SN', 'Skilled Nursing'), ('SP', 'Specialist'), ('SD', 'Specialty Drugs'), ('UC', 'Urgent Care')
+        ] %}
+          <input type="checkbox" name="benefits" value="{{ code }}"
+            {% if code in request.args.getlist('benefits') %}checked{% endif %}/> {{ name }}<br>
+        {% endfor %}
+      </div>
+
+      <button type="submit" class="filter-box-link">
+  <i class="fas fa-sliders-h" style="margin-right: 0.5rem;"></i>Apply Filter</button>
+
+    </form>
+  </aside>
+
+  <!-- Main Results -->
+  <section style="flex: 3;">
+    <h2>Plans Available in Your Area</h2>
+
+    {% for carrier, plans in grouped_plans.items() %}
+  <div class="carrier-section">
+        <div class="carrier-header" onclick="togglePlans(this)">
+          <span class="carrier-name">Plans by {{ carrier }}</span>
+          <span class="chevron">›</span>
+        </div>
+        <div class="carrier-body">
+          <ul class="plan-list">
+            {% for plan in plans %}
+              <li>
+                <div class="plan-name">{{ plan.name }}</div>
+                <div class="plan-actions">
+                  <a class="plan-link" href="{{ url_for('plan_detail', 
+                    planid=plan.id, 
+                    area=plan.area, 
+                    household=household_type,
+                    benefits=request.args.getlist('benefits'),
+                    max_copay=request.args.get('max_copay'),
+                    max_coinsurance=request.args.get('max_coinsurance')
+                  ) }}"><i class="fas fa-info-circle"></i> View Details</a>
+
+                  <a class="plan-link" href="{{ url_for('estimate_premium',
+                    zip=plan.zip,
+                    state=plan.st,
+                    carrier=plan.carrier,
+                    metal=plan.metal,
+                    plantype=(
+                      'PPO' if plan.plantype == 1 else
+                      'HMO' if plan.plantype == 2 else
+                      'POS' if plan.plantype == 3 else
+                      'EPO' if plan.plantype == 4 else
+                      'Other' if plan.plantype == 5 else ''
+                    )
+                  ) }}"><i class="fas fa-file-invoice-dollar"></i> Estimate Premium</a>
+
+                  <a class="plan-link" href="{{ url_for('add_to_cart', planid=plan.id, area=plan.area) }}"><i class="fas fa-shopping-cart"></i> Add to cart for comparison</a>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% endfor %}
+  </section>
+
+</div>
+{% endblock %}
+
+{% else %}
+  <p>No plans found for the selected ZIP or region.</p>
+{% endif %}

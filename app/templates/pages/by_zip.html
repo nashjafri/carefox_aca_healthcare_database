@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Find ACA Plans - CareFox{% endblock %}
+
+{% block content %}
+
+<style>
+    
+    h2{
+        text-align: center;
+        font-size: 2.3rem;
+    }    
+    
+.search-box-link {
+  display: inline-block;
+  padding: 1rem 1.5rem;
+  background-color: midnightblue;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 10px;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: background 0.3s ease;
+  border: none; /* Important for buttons */
+  cursor: pointer;
+}
+
+.search-box-link:hover {
+  background-color: skyblue;
+}
+
+</style>
+
+<h2>Find ACA Plans by ZIP or County</h2>
+
+
+<div class="form-wrapper">
+  <form method="POST" action="/by-zip" id="zipForm">
+    <input type="hidden" name="mode" id="formMode" value="submit">
+
+    <!-- ZIP Line -->
+<div style="margin-bottom: 0.2rem;">
+  <label for="zip">ZIP Code</label>
+  <input type="text" id="zip" name="zip" pattern="\d{5}" placeholder="e.g. 36053" value="{{ request.form.zip }}">
+</div>
+
+<!-- OR Line -->
+<div style="text-align: center; font-weight: bold; margin: 0.2rem 0 1rem;">OR</div>
+
+<!-- State and County Line -->
+<div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+  <!-- State -->
+  <div style="flex: 1;">
+    <label for="state">State</label>
+    <select name="state" id="state" onchange="submitForRefresh()">
+      <option value="">-- Select State --</option>
+      {% for code, name in states %}
+        <option value="{{ code }}" {% if selected_state == code %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <!-- County -->
+<div style="flex: 2;">
+  <label for="county">County</label>
+  <select name="county" id="county" {% if not counties %}disabled{% endif %}>
+    <option value="">-- Select County --</option>
+    {% for county in counties %}
+      <option value="{{ county }}" {% if request.form.county == county %}selected{% endif %}>{{ county }}</option>
+    {% endfor %}
+  </select>
+</div>
+</div> <!-- end row -->
+
+
+<!-- Household Type -->
+<label for="household" style="margin-top: 1rem;">Household Type*</label>
+<select id="household" name="household" required style="margin-bottom: 1.5rem;">
+  <option value="">-- Select --</option>
+  <option value="individual" {% if request.form.household == "individual" %}selected{% endif %}>Individual</option>
+  <option value="1a2c" {% if request.form.household == "1a2c" %}selected{% endif %}>Family (1 Adult + 2 Children)</option>
+  <option value="2a2c" {% if request.form.household == "2a2c" %}selected{% endif %}>Family (2 Adults + 2 Children)</option>
+</select>
+
+<button type="submit" class="search-box-link">
+  <i class="fas fa-magnifying-glass" style="margin-right: 0.5rem;"></i>Search Plans
+</button>
+
+
+  </form>
+</div>
+
+<script>
+  function submitForRefresh() {
+    document.getElementById('formMode').value = 'refresh';
+    document.getElementById('zipForm').submit();
+  }
+</script>
+{% endblock %}

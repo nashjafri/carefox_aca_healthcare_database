@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% block title %}Comparison Cart - CareFox{% endblock %}
+
+{% block content %}
+
+
+<style>
+    
+    h2{
+        text-align: center;
+        font-size: 2.3rem;
+    }  
+  .search-box-link {
+    display: inline-block;
+    padding: 1rem 1.5rem;
+    background-color: midnightblue;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 10px;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: background 0.3s ease;
+  }
+
+  .search-box-link:hover {
+    background-color: skyblue; 
+  }
+</style>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+  <h2 style="margin: 0;">Your Cart</h2>
+  <a href="{{ url_for('empty_cart') }}"
+   onclick="return confirm('Are you sure you want to empty your entire comparison cart?')"
+   style="color: indianred; font-weight: 500; text-decoration: none;">
+  <i class="fas fa-trash-alt" style="margin-right: 0.4rem;"></i>Empty Cart
+  </a>
+
+</div>
+
+{% if plans %}
+<!-- Main Comparison Table -->
+<div style="overflow-x: auto; border: 1px solid #ccc; border-radius: 8px; padding: 1rem;">
+  <table style="width: max-content; min-width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+    <thead>
+      <tr style="background-color: #f9f9f9;">
+        <th style="padding: 0.75rem; text-align: left; width: 25%;"></th>
+        {% for plan in plans %}
+        <th style="padding: 0.75rem; text-align: center; position: relative; max-width: 200px;">
+          <div title="{{ plan.planname }}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            {{ plan.planname }}
+          </div>
+          <a href="{{ url_for('remove_from_cart', planid=plan.planid, area=plan.area) }}"
+             title="Remove this plan"
+             onclick="return confirm('Are you sure you want to remove {{ plan.planname }} from your cart?')"
+             style="position: absolute; top: 6px; right: 8px; text-decoration: none; color: #c0392b; font-size: 0.85rem; border: 1px solid #c0392b; border-radius: 3px; padding: 0 4px;">
+            ×
+          </a>
+        </th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% set PLAN_TYPES = {1: 'PPO', 2: 'HMO', 3: 'POS', 4: 'EPO', 5: 'Other'} %}
+      {% for label, key in [
+        ('Carrier', 'carrier'),
+        ('Metal Level', 'metal'),
+        ('Plan Type', 'plantype'),
+        ('Base Premium<br>(Age 21)', 'premi21_base'),
+        ('Max Out-of-Pocket<br>(In Network)', 'moop_in'),
+        ('Max Out-of-Pocket<br>(Out of Network)', 'moop_out'),
+        ('Deductible<br>(In Network)', 'ded_in'),
+        ('Deductible<br>(Out of Network)', 'ded_out'),
+        ('Premium<br>(2 Adults + 2 Children)', 'premi2c30'),
+        ('Premium<br>(1 Adult + 2 Children)', 'premc2c30')
+      ] %}
+      <tr style="border-top: 1px solid #eee;">
+        <td style="padding: 0.75rem;"><strong>{{ label|safe }}</strong></td>
+        {% for plan in plans %}
+        <td style="padding: 0.75rem;">
+          {% set value = plan[key] %}
+          {% if value is none %}
+            <em style="color: #aaa;">N/A</em>
+          {% else %}
+            {% if key in ['premi21_base', 'moop_in', 'moop_out', 'ded_in', 'ded_out', 'premi2c30', 'premc2c30'] %}
+              ${{ value|round(0)|int }}
+            {% elif key == 'plantype' %}
+              {{ PLAN_TYPES.get(value, 'Unknown') }}
+            {% else %}
+              {{ value }}
+            {% endif %}
+          {% endif %}
+        </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Spacer -->
+<div style="margin-top: 3rem;"></div>
+
+<!-- Copay Table -->
+<h3 style="margin-top: 2rem;">In-Network Copay Comparison</h3>
+<div style="overflow-x: auto; border: 1px solid #ccc; border-radius: 8px;">
+  <div style="max-height: 220px; overflow-y: auto;">
+    <table style="min-width: 900px; border-collapse: collapse; font-size: 0.9rem;">
+      <thead style="background-color: #f9f9f9;">
+        <tr>
+          <th style="padding: 0.5rem; text-align: left; width: 25%;">Benefit</th>
+          {% for plan in plans %}
+          <th style="padding: 0.5rem; text-align: center;" title="{{ plan.planname }}">
+            {{ plan.planname[:30] ~ ('...' if plan.planname|length > 30 else '') }}
+          </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for benefit in benefit_names.items() %}
+        <tr style="border-top: 1px solid #eee;">
+          <td style="padding: 0.5rem;">{{ benefit[1] }}</td>
+          {% for plan in plans %}
+          <td style="padding: 0.5rem; text-align: center;">
+            {% set val = copay_data.get((plan.planid, plan.area, benefit[0])) %}
+            {% if val is not none %}
+              ${{ val|round(0)|int }}
+            {% else %}
+              <em style="color: #aaa;">N/A</em>
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Coinsurance Table -->
+<h3 style="margin-top: 2rem;">In-Network Coinsurance Comparison</h3>
+<div style="overflow-x: auto; border: 1px solid #ccc; border-radius: 8px;">
+  <div style="max-height: 220px; overflow-y: auto;">
+    <table style="min-width: 900px; border-collapse: collapse; font-size: 0.9rem;">
+      <thead style="background-color: #f9f9f9;">
+        <tr>
+          <th style="padding: 0.5rem; text-align: left; width: 25%;">Benefit</th>
+          {% for plan in plans %}
+          <th style="padding: 0.5rem; text-align: center;" title="{{ plan.planname }}">
+            {{ plan.planname[:30] ~ ('...' if plan.planname|length > 30 else '') }}
+          </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for benefit in benefit_names.items() %}
+        <tr style="border-top: 1px solid #eee;">
+          <td style="padding: 0.5rem;">{{ benefit[1] }}</td>
+          {% for plan in plans %}
+          <td style="padding: 0.5rem; text-align: center;">
+            {% set val = coins_data.get((plan.planid, plan.area, benefit[0])) %}
+            {% if val is not none %}
+              {{ val|round(0)|int }}%
+            {% else %}
+              <em style="color: #aaa;">N/A</em>
+            {% endif %}
+          </td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% else %}
+  <p>No plans in your cart yet.</p>
+    <div style="margin-top: 1.5rem; text-align: center;">
+      <a href="{{ url_for('search_by_zip') }}" class="search-box-link">
+      <i class="fas fa-magnifying-glass" style="margin-right: 0.5rem;"></i>Search Plans
+      </a>
+
+    </div>
+
+{% endif %}
+{% endblock %}

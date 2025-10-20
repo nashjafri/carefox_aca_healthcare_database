@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Premium Estimate - CareFox{% endblock %}
+
+{% block content %}
+
+<style>
+    
+     .box-link {
+      display: inline-block;
+      padding: 0.7rem 1rem;
+      background-color: midnightblue;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: background 0.3s ease;
+      border: none; /* Important for buttons */
+      cursor: pointer;
+    }
+
+    .box-link:hover {
+      background-color: skyblue;
+    }  
+
+</style>
+
+
+<div class="card" style="padding: 2rem; border: 1px solid #ddd; border-radius: 12px; max-width: 700px; margin: 0 auto;">
+  <h2>Estimated Monthly Premium</h2>
+  <p><strong>Plan:</strong> {{ plan.planname }}</p>
+  <p><strong>Carrier:</strong> {{ plan.carrier }}</p>
+  <p><strong>Metal Level:</strong> {{ plan.metal }}</p>
+
+  <hr style="margin: 1rem 0;">
+
+  <p><strong>Your Age:</strong> {{ age }}</p>
+  <p><strong>State Multiplier:</strong> {{ multiplier }}</p>
+  <p><strong>Base Premium (Age 21):</strong> ${{ plan.premi21_base }}</p>
+  <p><strong>Your Estimated Premium:</strong> 
+    <span style="font-weight: bold; font-size: 1.2rem;">${{ user_premium }}</span>
+    <br><small style="color: #555;">(Calculated as {{ plan.premi21_base }} × {{ multiplier }} = {{ user_premium }})</small>
+  </p>
+
+  <hr style="margin: 1rem 0;">
+
+  <p><strong>Other Family Premium Options:</strong></p>
+  <ul style="list-style-type: disc; padding-left: 1.5rem;">
+    <li>1 Adult (age 30) + 2 Children (0–14): <strong>${{ plan.premi2c30 }}</strong></li>
+    <li>2 Adults (age 30) + 2 Children (0–14): <strong>${{ plan.premc2c30 }}</strong></li>
+  </ul>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+      <a href="{{ url_for('estimate_premium') }}" class="box-link">
+        <i class="fas fa-arrows-rotate" style="margin-right: 0.4rem;"></i>Try Another Estimate
+      </a>
+
+      <a href="{{ url_for('add_to_cart', planid=request.args.get('planid'), area=request.args.get('area')) }}" class="box-link">
+        <i class="fas fa-cart-plus" style="margin-right: 0.4rem;"></i>Add to Comparison Cart
+      </a>
+    </div>
+
+
+</div>
+{% endblock %}

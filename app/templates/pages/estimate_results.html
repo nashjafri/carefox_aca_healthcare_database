@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% block title %}Matching Plans{% endblock %}
+
+{% block content %}
+<h2>Matching Plans</h2>
+
+<style>
+    
+  .estimate-box-link {
+      display: inline-block;
+      padding: 1rem 1.5rem;
+      background-color: midnightblue;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 10px;
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: background 0.3s ease;
+      border: none; /* Important for buttons */
+      cursor: pointer;
+    }
+
+    .estimate-box-link:hover {
+      background-color: skyblue;
+    }  
+    
+  .metal-section {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  .metal-header {
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    color: #2c3e50;
+    transition: color 0.3s ease;
+  }
+
+  .metal-header:hover {
+    color: #005fa3;
+  }
+
+  .metal-body {
+    display: none;
+    padding-left: 1rem;
+    padding-top: 0.5rem;
+  }
+
+  .metal-section.open .metal-body {
+    display: block;
+  }
+
+  .metal-section.open .chevron {
+    transform: rotate(90deg);
+  }
+
+  .chevron {
+    font-size: 2rem;
+    transition: transform 0.3s ease;
+    color: #777;
+  }
+
+  .plan-list {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .plan-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 0.75rem;
+  }
+
+  .plan-name {
+    font-weight: 500;
+  }
+
+  .circle-radio {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #0077cc;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .circle-radio.selected::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background-color: #0077cc;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+  }
+
+/*
+  .bottom-button {
+    text-align: center;
+    margin-top: 2rem;
+  }
+
+  .bottom-button button {
+    padding: 0.6rem 1.5rem;
+    font-size: 1rem;
+    background-color: #2c3e50;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .bottom-button button:hover {
+    background-color: #1e2d3a;
+  }
+*/
+    
+</style>
+
+<script>
+  function toggleMetalPlans(header) {
+    const section = header.parentElement;
+    section.classList.toggle('open');
+  }
+
+  function selectPlan(planId, area) {
+    document.getElementById('selected_planid').value = planId;
+    document.getElementById('selected_area').value = area;
+
+    // Clear previous selection
+    const radios = document.querySelectorAll('.circle-radio');
+    radios.forEach(r => r.classList.remove('selected'));
+
+    // Highlight selected
+    const target = document.getElementById(`circle-${planId}-${area}`);
+    if (target) target.classList.add('selected');
+  }
+</script>
+
+{% if plans_by_metal %}
+  <form method="GET" action="{{ url_for('estimate_calc') }}">
+    <input type="hidden" name="planid" id="selected_planid">
+    <input type="hidden" name="area" id="selected_area">
+    <input type="hidden" name="age" value="{{ age }}">
+    <input type="hidden" name="state" value="{{ state }}">
+
+    {% for metal, plans in plans_by_metal.items() %}
+      <div class="metal-section {% if loop.first %}open{% endif %}">
+        <div class="metal-header" onclick="toggleMetalPlans(this)">
+          <span>{{ metal }} Plans</span>
+          <span class="chevron">›</span>
+        </div>
+        <div class="metal-body">
+          <ul class="plan-list">
+            {% for plan in plans %}
+              <li class="plan-item">
+                <div class="circle-radio" id="circle-{{ plan.planid }}-{{ plan.area }}"
+                     onclick="selectPlan('{{ plan.planid }}', '{{ plan.area }}')"></div>
+                <div class="plan-name">{{ plan.planname }} ({{ plan.carrier }})</div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% endfor %}
+
+<!--    <div class="bottom-button">-->
+      <button type="submit" class="estimate-box-link">
+    <i class="fas fa-file-invoice-dollar" style="margin-right: 0.5rem;"></i>Estimate Monthly Premium</button>
+<!--    </div>-->
+  </form>
+{% else %}
+  <p>No matching plans found.</p>
+{% endif %}
+{% endblock %}

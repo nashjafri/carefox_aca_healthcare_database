@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Estimate Premium - CareFox{% endblock %}
+
+{% block content %}
+
+<style>
+    
+    h2{
+        text-align: center;
+        font-size: 2.3rem;
+    }  
+    
+.estimate-box-link {
+  display: inline-block;
+  padding: 1rem 1.5rem;
+  background-color: midnightblue;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 10px;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: background 0.3s ease;
+  border: none; /* Important for buttons */
+  cursor: pointer;
+}
+
+.estimate-box-link:hover {
+  background-color: skyblue;
+}
+
+</style>
+
+<h2>Estimate Your Monthly Premium</h2>
+
+{% if error %}
+  <p style="color: red; font-weight: bold; text-align: center;">{{ error }}</p>
+{% endif %}
+
+<div class="form-wrapper">
+  <form method="POST" action="/estimate">
+    <!-- ZIP -->
+    <label for="zip">ZIP Code*</label>
+    <input type="text" id="zip" name="zip" pattern="\d{5}" placeholder="e.g. 36053"
+           value="{{ zip or '' }}" required>
+
+ <!-- STATE -->
+<label for="state">State*</label>
+<select id="state" name="state" required onchange="this.form.submit();">
+  <option value="">-- Select State --</option>
+  {% for code, name in states %}
+    <option value="{{ code }}" {% if selected_state == code %}selected{% endif %}>{{ name }}</option>
+  {% endfor %}
+</select>
+
+
+    <!-- CARRIER -->
+    <label for="carrier">Insurance Carrier*</label>
+    <select name="carrier" id="carrier" required>
+      <option value="">-- Select Carrier --</option>
+      {% for c in carriers %}
+        <option value="{{ c }}" {% if carrier == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+
+    <!-- AGE -->
+    <label for="age">Your Age*</label>
+    <input type="number" id="age" name="age" min="0" placeholder="e.g. 32"
+           value="{{ age or '' }}" required>
+
+    <!-- PLAN TYPE -->
+    <label for="plantype">Plan Type (optional)</label>
+    <select id="plantype" name="plantype">
+      <option value="">-- Any --</option>
+      <option value="PPO" {% if plantype == 'PPO' %}selected{% endif %}>PPO</option>
+      <option value="HMO" {% if plantype == 'HMO' %}selected{% endif %}>HMO</option>
+      <option value="POS" {% if plantype == 'POS' %}selected{% endif %}>POS</option>
+      <option value="EPO" {% if plantype == 'EPO' %}selected{% endif %}>EPO</option>
+      <option value="Other" {% if plantype == 'Other' %}selected{% endif %}>Other</option>
+    </select>
+
+    <!-- METAL -->
+    <label for="metal">Metal Level (optional)</label>
+    <select id="metal" name="metal">
+      <option value="">-- Any --</option>
+      <option value="Bronze" {% if metal == 'Bronze' %}selected{% endif %}>Bronze</option>
+      <option value="Silver" {% if metal == 'Silver' %}selected{% endif %}>Silver</option>
+      <option value="Gold" {% if metal == 'Gold' %}selected{% endif %}>Gold</option>
+      <option value="Platinum" {% if metal == 'Platinum' %}selected{% endif %}>Platinum</option>
+      <option value="Catastrophic" {% if metal == 'Catastrophic' %}selected{% endif %}>Catastrophic</option>
+        <option value="Expanded Bronze" {% if metal == 'Expanded Bronze' %}selected{% endif %}>Expanded Bronze</option>
+
+    </select>
+
+    <!-- SUBMIT -->
+    <button type="submit" class="estimate-box-link">
+    <i class="fas fa-file-invoice-dollar" style="margin-right: 0.5rem;"></i>Estimate Premium</button>
+  </form>
+</div>
+{% endblock %}

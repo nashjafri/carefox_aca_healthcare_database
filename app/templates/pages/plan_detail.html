@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    
+.plan-link {
+    font-size: 0.9rem;
+    margin-right: 1rem;
+    text-decoration: none;
+    color: #0077cc;
+    font-weight: 500;
+  }
+
+
+.circle-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 15px;
+  height: 15px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background-color: #005fa3;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+}
+ 
+    
+</style>
+
+
+<!-- Plan Overview Card -->
+<div class="card" style="padding: 1.5rem; border-radius: 12px; border: 1px solid #ddd; margin-bottom: 2rem;">
+  <h2>{{ plan.planname }}</h2>
+  <p><strong>Metal Level:</strong> {{ plan.metal }}</p>
+  <p><strong>Plan Type:</strong> {{ plan_types[plan.plantype] }}</p>
+  <p><strong>Cost-Sharing Reduction:</strong> {{ 'Yes' if plan.csr else 'No' }}</p>
+  <p><strong>Child-Only:</strong> {{ 'Yes' if plan.childonly else 'No' }}</p>
+  <p><strong>Marketplace Availability:</strong> {{ plan_markets[plan.planmarket] }}</p>
+    
+
+<a class="plan-link" href="{{ url_for('add_to_cart', planid=planid, area=area) }}"><i class="fas fa-shopping-cart"></i> Add to cart for comparison</a>
+
+</div>
+
+
+<!-- Shared table style -->
+<style>
+  .fixed-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+  .fixed-table th, .fixed-table td {
+    padding: 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+  }
+  .fixed-table th {
+    background-color: #f9f9f9;
+    font-weight: bold;
+  }
+  .muted {
+    color: #999;
+    font-size: 0.95em;
+  }
+</style>
+
+<!-- Deductibles -->
+<div class="card" style="flex: 1; padding: 1rem; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 1.5rem;">
+  <h3>Deductibles ({{ 'Individual' if household_type == 'IND' else 'Family' }})</h3>
+  <table class="fixed-table">
+    <tr><th></th><th>Medical</th><th>Drug</th><th>Total</th></tr>
+    <tr>
+      <td>In-Network</td>
+      <td>
+        {{ ('$' ~ deductibles.med_in|round|int) if deductibles.med_in is not none else '<span class="muted">Not available</span>' | safe }}
+      </td>
+      <td>
+        {{ ('$' ~ deductibles.drug_in|round|int) if deductibles.drug_in is not none else '<span class="muted">Not available</span>' | safe }}
+      </td>
+      <td>
+        {{ ('$' ~ deductibles.tot_in|round|int) if deductibles.tot_in is not none else '<span class="muted">Not available</span>' | safe }}
+      </td>
+    </tr>
+    <tr>
+      <td>Out-of-Network</td>
+      <td>
+        {{ ('$' ~ deductibles.med_out|round|int) if deductibles.med_out is not none else '<span class="muted">Not available</span>' | safe }}
+      </td>
+      <td>
+        {{ ('$' ~ deductibles.drug_out|round|int) if deductibles.drug_out is not none else '<span class="muted">Not available</span>' | safe }}
+      </td>
+      <td>
+        {{ ('$' ~ deductibles.tot_out|round|int) if deductibles.tot_out is not none else '<span class="muted">Not available</span>' | safe }}
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+<!-- MOOP -->
+<div class="card" style="flex: 1; padding: 1rem; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 1.5rem;">
+  <h3>Maximum Out of Pocket ({{ 'Individual' if household_type == 'IND' else 'Family' }})</h3>
+  <table class="fixed-table">
+    <tr><th></th><th>Medical</th><th>Drug</th><th>Total</th></tr>
+    <tr>
+      <td>In-Network</td>
+      <td>
+        {{ ('$' ~ moop.med_in|round|int) if moop.med_in is not none else '<span class="muted">Not available</span>' | safe }}
+      </td>
+      <td>
+        {{ ('$' ~ moop.drug_in|round|int) if moop.drug_in is not none else '<span class="muted">Not available</span>' | safe }}
+      </td>
+      <td>
+        {{ ('$' ~ moop.tot_in|round|int) if moop.tot_in is not none else '<span class="muted">Not available</span>' | safe }}
+      </td>
+    </tr>
+    <tr>
+      <td>Out-of-Network</td>
+      <td>
+        {{ ('$' ~ moop.med_out) if moop.med_out is not none else '<span class="muted">Not available</span>' | safe }}
+      </td>
+      <td>
+        {{ ('$' ~ moop.drug_out) if moop.drug_out is not none else '<span class="muted">Not available</span>' | safe }}
+      </td>
+      <td>
+        {{ ('$' ~ moop.tot_out) if moop.tot_out is not none else '<span class="muted">Not available</span>' | safe }}
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+
+
+<!-- Benefit Cost-Sharing -->
+<div class="card" style="padding: 1.5rem; border: 1px solid #ddd; border-radius: 12px;">
+  <h3 style="margin-bottom: 1rem;">Benefit Cost-Sharing</h3>
+  {% if benefits %}
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+      <thead>
+        <tr style="background-color: #f9f9f9;">
+          <th style="padding: 0.75rem; text-align: left; width: 20%;">Benefit</th>
+          <th style="padding: 0.75rem; text-align: left; width: 20%;">In-Network Copay</th>
+          <th style="padding: 0.75rem; text-align: left; width: 20%;">In-Network Coinsurance</th>
+          <th style="padding: 0.75rem; text-align: left; width: 20%;">Out-of-Network Copay</th>
+          <th style="padding: 0.75rem; text-align: left; width: 20%;">Out-of-Network Coinsurance</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in benefits %}
+        <tr style="border-top: 1px solid #eee;">
+          <td style="padding: 0.75rem;">{{ benefit_names.get(b.benefit_code, b.benefit_code) }}</td>
+
+          <td style="padding: 0.75rem;">
+            {% if b.copayinntier1a is not none %}
+              ${{ b.copayinntier1a|round|int }}<br>
+              <span style="color: #666;">{{ copay_codes.get(b.copayinntier1, '') }}</span>
+            {% else %}
+              <span style="color: #999;">No coverage for this benefit.</span>
+            {% endif %}
+          </td>
+
+          <td style="padding: 0.75rem;">
+            {% if b.coinsinntier1a is not none %}
+              {{ b.coinsinntier1a|round|int }}%<br>
+              <span style="color: #666;">{{ copay_codes.get(b.coinsinntier1, '') }}</span>
+            {% else %}
+              <span style="color: #999;">No coverage for this benefit.</span>
+            {% endif %}
+          </td>
+
+          <td style="padding: 0.75rem;">
+            {% if b.copayoutofneta is not none %}
+              ${{ b.copayoutofneta|round|int }}<br>
+              <span style="color: #666;">{{ copay_codes.get(b.copayoutofnet, '') }}</span>
+            {% else %}
+              <span style="color: #999;">No coverage for this benefit.</span>
+            {% endif %}
+          </td>
+
+          <td style="padding: 0.75rem;">
+            {% if b.coinsoutofneta is not none %}
+              {{ b.coinsoutofneta|round|int }}%<br>
+              <span style="color: #666;">{{ copay_codes.get(b.coinsoutofnet, '') }}</span>
+            {% else %}
+              <span style="color: #999;">No coverage for this benefit.</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No benefit data available.</p>
+  {% endif %}
+</div>
+
+
+
+
+{% endblock %}
